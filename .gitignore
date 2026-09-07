@@ -1,0 +1,28 @@
+# Credenciales y configuración privada
+.env
+.env.*
+!.env.example
+
+# Entornos virtuales de Python
+.venv/
+venv/
+
+# Archivos temporales de Python y pruebas
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Configuración privada de Streamlit
+.streamlit/secrets.toml
+
+# Bases de datos y registros locales
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Datos originales y audios locales
+data/raw/
+data/audio/
