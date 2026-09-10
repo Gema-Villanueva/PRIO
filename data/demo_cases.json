@@ -1,1 +1,74 @@
-[]
+[
+  {
+    "id": "wifi_information",
+    "message": "¿Cuál es la contraseña del wifi del alojamiento?",
+    "user_role": "guest",
+    "expected": {
+      "category": "general",
+      "urgency": "low",
+      "responsible_party": "host",
+      "department": "general_support"
+    },
+    "summary_reference": "El huésped solicita la contraseña del wifi de su alojamiento."
+  },
+  {
+    "id": "broken_shower",
+    "message": "El soporte de la ducha está roto, pero puedo ducharme. ¿Podrían repararlo?",
+    "user_role": "guest",
+    "expected": {
+      "category": "accommodation",
+      "urgency": "medium",
+      "responsible_party": "host",
+      "department": "property_support"
+    },
+    "summary_reference": "El huésped solicita reparar el soporte de la ducha, que todavía puede utilizar."
+  },
+  {
+    "id": "duplicate_charge",
+    "message": "La plataforma me ha cobrado dos veces la misma reserva.",
+    "user_role": "guest",
+    "expected": {
+      "category": "payment",
+      "urgency": "medium",
+      "responsible_party": "platform",
+      "department": "payments"
+    },
+    "summary_reference": "El huésped comunica un cobro duplicado de la misma reserva."
+  },
+  {
+    "id": "locked_out",
+    "message": "Estoy fuera del alojamiento, la cerradura no abre y el anfitrión no responde.",
+    "user_role": "guest",
+    "expected": {
+      "category": "access",
+      "urgency": "high",
+      "responsible_party": "platform",
+      "department": "reservation_support"
+    },
+    "summary_reference": "El huésped no puede entrar y no consigue contactar con el anfitrión."
+  },
+  {
+    "id": "active_fire",
+    "message": "Hay fuego en la cocina del alojamiento y todavía hay personas dentro.",
+    "user_role": "host",
+    "expected": {
+      "category": "safety",
+      "urgency": "critical",
+      "responsible_party": "platform",
+      "department": "trust_and_safety"
+    },
+    "summary_reference": "El anfitrión informa de un incendio con personas dentro del alojamiento."
+  },
+  {
+    "id": "resolved_fire_booking_support",
+    "message": "Los bomberos han apagado el incendio y no hay personas en peligro. El alojamiento ha quedado inhabitable y necesito ayuda con las reservas de esta noche.",
+    "user_role": "host",
+    "expected": {
+      "category": "booking",
+      "urgency": "high",
+      "responsible_party": "platform",
+      "department": "reservation_support"
+    },
+    "summary_reference": "El anfitrión solicita ayuda con las reservas de esta noche porque un incendio ya extinguido ha dejado el alojamiento inhabitable."
+  }
+]

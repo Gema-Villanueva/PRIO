@@ -32,6 +32,10 @@ class TriageResponse(BaseModel):
         "general",
     ]
     urgency: Literal["low", "medium", "high", "critical"]
+
+    # Indicamos quién debe atender inicialmente la solicitud.
+    responsible_party: Literal["host", "platform"]
+
     summary: str = Field(min_length=1)
     department: Literal[
         "reservation_support",
@@ -41,13 +45,17 @@ class TriageResponse(BaseModel):
         "general_support",
     ]
 
-    # Normalizamos los espacios y exigimos un resumen de diez palabras.
+    # Exigimos un resumen breve y normalizamos los espacios.
     @field_validator("summary")
     @classmethod
     def validate_summary(cls, value: str) -> str:
         words = value.split()
 
-        if len(words) != 10:
-            raise ValueError("Summary must contain exactly 10 words")
+        if not 5 <= len(words) <= 25:
+            raise ValueError(
+                f"Summary must contain between 5 and 25 words; "
+                f"received {len(words)}. "
+                "Rewrite it in natural Spanish without adding unsupported details."
+            )
 
         return " ".join(words)
