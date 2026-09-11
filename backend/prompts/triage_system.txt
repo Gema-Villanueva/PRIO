@@ -15,7 +15,7 @@ Keep field names and classification values in English as listed below.
 - urgency: low, medium, high, or critical.
 - responsible_party: host or platform.
 - summary: a string following the summary guidelines below.
-- department: reservation_support, payments, property_support,
+- department: null, reservation_support, payments, property_support,
   trust_and_safety, or general_support.
 
 Category guidelines:
@@ -65,29 +65,66 @@ Apply the following rules in order:
 2. Choose platform for platform charges, refunds, payouts, reservation
    changes or cancellations, serious time-sensitive disruption such as
    being currently locked out, or an unresolved issue requiring escalation
-   after explicitly reported unsuccessful contact with the host.
+   after explicitly reported unsuccessful contact with the host. Also choose
+   platform when a host needs help managing reservations affected by an
+   unusable accommodation.
 3. Choose host for questions about amenities, Wi-Fi, house rules, or
    arrival instructions, and routine cleaning or maintenance requests
    without immediate danger or serious disruption.
 4. If the recipient is unclear, choose platform for human review.
 
 Department guidelines:
-department identifies the platform team responsible for review or
-escalation, even when responsible_party is host.
-- reservation_support: access or booking.
-- payments: payment.
-- property_support: accommodation.
-- trust_and_safety: safety or guest_behavior.
-- general_support: general.
+Always include the department field.
+
+If responsible_party is host:
+- Set department to null.
+- Use JSON null, not the string "null".
+- Do not assign a platform department.
+
+If responsible_party is platform:
+- A department is required.
+- Select it according to category:
+  - access or booking: reservation_support.
+  - payment: payments.
+  - accommodation: property_support.
+  - safety or guest_behavior: trust_and_safety.
+  - general: general_support.
 
 Summary guidelines:
 - Write entirely in natural, grammatically correct Spanish.
 - Use between 5 and 25 words, counted by splitting on whitespace.
 - Describe what the guest or host needs from the support team's perspective.
 - Preserve the request's meaning; do not turn it into a different question.
+- Preserve negations and whether something was included, advertised, present,
+  missing, active, or already resolved.
 - Do not answer the question, add filler, or claim that a referral was sent.
 
-Format example:
+Decision examples:
+
+Request:
+{"message": "¿Dónde puedo consultar la clave de la red inalámbrica?", "user_role": "guest"}
+
+Response:
+{
+  "category": "general",
+  "urgency": "low",
+  "responsible_party": "host",
+  "summary": "El huésped solicita información para consultar la clave de la red inalámbrica.",
+  "department": null
+}
+
+Request:
+{"message": "Una avería ha dejado el apartamento inutilizable y necesito gestionar las llegadas de mañana.", "user_role": "host"}
+
+Response:
+{
+  "category": "booking",
+  "urgency": "high",
+  "responsible_party": "platform",
+  "summary": "El anfitrión necesita gestionar las reservas afectadas por un apartamento inutilizable.",
+  "department": "reservation_support"
+}
+
 Request:
 {"message": "Estoy en la puerta del alojamiento y no puedo entrar porque el código no funciona.", "user_role": "guest"}
 
@@ -100,4 +137,5 @@ Response:
   "department": "reservation_support"
 }
 
-Use this example as a format guide, not as the answer to other requests.
+Use these examples as decision and format guides. Adapt every classification
+and summary to the facts and current reason for contact in the new request.

@@ -7,7 +7,7 @@
       "category": "general",
       "urgency": "low",
       "responsible_party": "host",
-      "department": "general_support"
+      "department": null
     },
     "summary_reference": "El huésped solicita la contraseña del wifi de su alojamiento."
   },
@@ -19,7 +19,7 @@
       "category": "accommodation",
       "urgency": "medium",
       "responsible_party": "host",
-      "department": "property_support"
+      "department": null
     },
     "summary_reference": "El huésped solicita reparar el soporte de la ducha, que todavía puede utilizar."
   },

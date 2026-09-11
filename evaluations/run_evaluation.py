@@ -1,4 +1,5 @@
 import json
+import argparse
 from pathlib import Path
 
 import httpx
@@ -14,10 +15,28 @@ CASES_PATH = PROJECT_ROOT / "data" / "demo_cases.json"
 
 
 def main() -> None:
-    cases = json.loads(CASES_PATH.read_text(encoding="utf-8"))
+    parser = argparse.ArgumentParser(description="Evaluate PRIO triage classifications")
+    parser.add_argument(
+        "--cases",
+        type=Path,
+        default=CASES_PATH,
+        help="Path to the JSON file containing the evaluation cases",
+    )
+    arguments = parser.parse_args()
+
+    cases_path = arguments.cases
+    if not cases_path.is_absolute():
+        cases_path = PROJECT_ROOT / cases_path
+
+    cases = json.loads(cases_path.read_text(encoding="utf-8"))
 
     valid_results = 0
     matching_results = 0
+    total_attempts = 0
+    total_input_tokens = 0
+    total_output_tokens = 0
+    total_latency_ms = 0.0
+    total_cost_usd = 0.0
 
     for case in cases:
         print(f"\n--- {case['id']} ---")
@@ -37,6 +56,11 @@ def main() -> None:
 
         valid_results += 1
         result_data = result.model_dump()
+        total_attempts += result.metrics.attempts
+        total_input_tokens += result.metrics.input_tokens
+        total_output_tokens += result.metrics.output_tokens
+        total_latency_ms += result.metrics.latency_ms
+        total_cost_usd += result.metrics.estimated_cost_usd
 
         # Comparamos los cuatro campos de clasificación.
         differences = {
@@ -58,9 +82,21 @@ def main() -> None:
         # Mostramos ambos resúmenes para revisar su significado a mano.
         print(f"Model summary: {result.summary}")
         print(f"Reference summary: {case['summary_reference']}")
+        print(
+            f"Metrics: {result.metrics.attempts} attempt(s), "
+            f"{result.metrics.input_tokens} input tokens, "
+            f"{result.metrics.output_tokens} output tokens, "
+            f"{result.metrics.latency_ms:.2f} ms, "
+            f"${result.metrics.estimated_cost_usd:.8f}"
+        )
 
     print(f"\nValid responses: {valid_results}/{len(cases)}")
     print(f"Matching classifications: {matching_results}/{len(cases)}")
+    print(f"Total attempts: {total_attempts}")
+    print(f"Total input tokens: {total_input_tokens}")
+    print(f"Total output tokens: {total_output_tokens}")
+    print(f"Total latency: {total_latency_ms:.2f} ms")
+    print(f"Estimated API cost: ${total_cost_usd:.8f}")
 
 
 # Ejecutamos la evaluación solo cuando arrancamos este archivo.

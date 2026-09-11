@@ -1,0 +1,122 @@
+[
+  {
+    "id": "refund_not_received",
+    "message": "La plataforma aprobó mi reembolso hace diez días, pero todavía no lo he recibido.",
+    "user_role": "guest",
+    "expected": {
+      "category": "payment",
+      "urgency": "medium",
+      "responsible_party": "platform",
+      "department": "payments"
+    },
+    "summary_reference": "El huésped todavía no ha recibido un reembolso aprobado por la plataforma."
+  },
+  {
+    "id": "cancel_future_booking",
+    "message": "Necesito cancelar una reserva para el mes que viene.",
+    "user_role": "guest",
+    "expected": {
+      "category": "booking",
+      "urgency": "medium",
+      "responsible_party": "platform",
+      "department": "reservation_support"
+    },
+    "summary_reference": "El huésped solicita cancelar una reserva prevista para el próximo mes."
+  },
+  {
+    "id": "missing_towels",
+    "message": "No hay toallas en el apartamento aunque estaban incluidas en el anuncio.",
+    "user_role": "guest",
+    "expected": {
+      "category": "accommodation",
+      "urgency": "medium",
+      "responsible_party": "host",
+      "department": null
+    },
+    "summary_reference": "El huésped informa de que faltan las toallas anunciadas en el apartamento."
+  },
+  {
+    "id": "gas_smell",
+    "message": "Huele mucho a gas dentro del alojamiento y seguimos dentro.",
+    "user_role": "guest",
+    "expected": {
+      "category": "safety",
+      "urgency": "critical",
+      "responsible_party": "platform",
+      "department": "trust_and_safety"
+    },
+    "summary_reference": "El huésped comunica un posible escape de gas con personas dentro del alojamiento."
+  },
+  {
+    "id": "unauthorized_party",
+    "message": "Los huéspedes han organizado una fiesta prohibida y los vecinos están llamando por el ruido.",
+    "user_role": "host",
+    "expected": {
+      "category": "guest_behavior",
+      "urgency": "high",
+      "responsible_party": "platform",
+      "department": "trust_and_safety"
+    },
+    "summary_reference": "El anfitrión informa de una fiesta prohibida que está molestando a los vecinos."
+  },
+  {
+    "id": "house_rules_question",
+    "message": "¿A qué hora comienza el periodo de silencio del alojamiento?",
+    "user_role": "guest",
+    "expected": {
+      "category": "general",
+      "urgency": "low",
+      "responsible_party": "host",
+      "department": null
+    },
+    "summary_reference": "El huésped pregunta al anfitrión cuándo comienza el periodo de silencio."
+  },
+  {
+    "id": "host_payout_missing",
+    "message": "No aparece el pago de la plataforma correspondiente a la última estancia.",
+    "user_role": "host",
+    "expected": {
+      "category": "payment",
+      "urgency": "medium",
+      "responsible_party": "platform",
+      "department": "payments"
+    },
+    "summary_reference": "El anfitrión informa de que falta el pago correspondiente a la última estancia."
+  },
+  {
+    "id": "arrival_instructions",
+    "message": "¿Dónde recoge mañana el huésped las llaves del apartamento?",
+    "user_role": "host",
+    "expected": {
+      "category": "general",
+      "urgency": "low",
+      "responsible_party": "host",
+      "department": null
+    },
+    "summary_reference": "El anfitrión consulta dónde debe recoger el huésped las llaves mañana."
+  },
+  {
+    "id": "past_leak_repair",
+    "message": "La fuga de agua ya está cerrada y no hay peligro, pero hay que reparar el techo dañado.",
+    "user_role": "host",
+    "expected": {
+      "category": "accommodation",
+      "urgency": "medium",
+      "responsible_party": "host",
+      "department": null
+    },
+    "summary_reference": "El anfitrión solicita reparar el techo dañado por una fuga de agua ya cerrada."
+  },
+  {
+    "id": "unusable_property_arrivals",
+    "message": "El apartamento se ha quedado sin agua y no puede alojar a los huéspedes que llegan hoy. Necesito ayuda con sus reservas.",
+    "user_role": "host",
+    "expected": {
+      "category": "booking",
+      "urgency": "high",
+      "responsible_party": "platform",
+      "department": "reservation_support"
+    },
+    "summary_reference": "El anfitrión necesita gestionar reservas de hoy porque el apartamento se ha quedado sin agua."
+  }
+]
