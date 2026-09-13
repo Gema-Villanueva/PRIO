@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS triage_requests (
     llm_urgency TEXT NOT NULL,
     llm_responsible_party TEXT NOT NULL,
     llm_summary TEXT NOT NULL,
+    llm_justification TEXT NOT NULL,
     llm_department TEXT,
 
     provider TEXT NOT NULL,
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS triage_requests (
     final_urgency TEXT,
     final_responsible_party TEXT,
     final_summary TEXT,
+    final_justification TEXT,
     final_department TEXT,
     review_notes TEXT,
 
@@ -63,6 +65,32 @@ def initialize_database(
     # Cerramos la conexión después de crear y confirmar la tabla.
     with closing(connect_database(database_path)) as connection:
         connection.execute(CREATE_TRIAGE_REQUESTS_TABLE)
+
+        # Añadimos las columnas nuevas también a bases de datos ya existentes.
+        columns = {
+            row["name"]
+            for row in connection.execute(
+                "PRAGMA table_info(triage_requests)"
+            ).fetchall()
+        }
+
+        if "llm_justification" not in columns:
+            connection.execute(
+                """
+                ALTER TABLE triage_requests
+                ADD COLUMN llm_justification TEXT NOT NULL
+                DEFAULT 'Justificación no disponible para registros anteriores.'
+                """
+            )
+
+        if "final_justification" not in columns:
+            connection.execute(
+                """
+                ALTER TABLE triage_requests
+                ADD COLUMN final_justification TEXT
+                """
+            )
+
         connection.commit()
 
 def save_triage_request(
@@ -86,6 +114,7 @@ def save_triage_request(
                 llm_urgency,
                 llm_responsible_party,
                 llm_summary,
+                llm_justification,
                 llm_department,
                 provider,
                 model,
@@ -95,7 +124,7 @@ def save_triage_request(
                 latency_ms,
                 estimated_cost_usd
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 request.message,
@@ -104,6 +133,7 @@ def save_triage_request(
                 result.urgency,
                 result.responsible_party,
                 result.summary,
+                result.justification,
                 result.department,
                 metrics.provider,
                 metrics.model,
@@ -183,6 +213,7 @@ def approve_triage_request(
                 final_urgency = llm_urgency,
                 final_responsible_party = llm_responsible_party,
                 final_summary = llm_summary,
+                final_justification = llm_justification,
                 final_department = llm_department,
                 reviewed_at = CURRENT_TIMESTAMP
             WHERE id = ?
@@ -214,6 +245,7 @@ def correct_triage_request(
                 final_urgency = ?,
                 final_responsible_party = ?,
                 final_summary = ?,
+                final_justification = ?,
                 final_department = ?,
                 review_notes = ?,
                 reviewed_at = CURRENT_TIMESTAMP
@@ -225,6 +257,7 @@ def correct_triage_request(
                 correction.urgency,
                 correction.responsible_party,
                 correction.summary,
+                correction.justification,
                 correction.department,
                 correction.review_notes,
                 request_id,

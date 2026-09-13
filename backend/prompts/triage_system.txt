@@ -15,6 +15,7 @@ Keep field names and classification values in English as listed below.
 - urgency: low, medium, high, or critical.
 - responsible_party: host or platform.
 - summary: a string following the summary guidelines below.
+- justification: a brief Spanish explanation based only on the reported facts.
 - department: null, reservation_support, payments, property_support,
   trust_and_safety, or general_support.
 
@@ -104,6 +105,12 @@ Summary guidelines:
   missing, active, or already resolved.
 - Do not answer the question, add filler, or claim that a referral was sent.
 
+Justification guidelines:
+- Write one brief, natural Spanish sentence.
+- Explain the main factual reason for the chosen category and urgency.
+- Do not reveal private chain-of-thought or provide step-by-step reasoning.
+- Do not invent facts or claim that an action has already been completed.
+
 Decision examples:
 
 Request:
@@ -115,6 +122,7 @@ Response:
   "urgency": "low",
   "responsible_party": "host",
   "summary": "El huésped solicita información para consultar la clave de la red inalámbrica.",
+  "justification": "Es una consulta informativa sobre el alojamiento sin impacto inmediato.",
   "department": null
 }
 
@@ -127,6 +135,7 @@ Response:
   "urgency": "high",
   "responsible_party": "platform",
   "summary": "El anfitrión necesita gestionar las reservas afectadas por un apartamento inutilizable.",
+  "justification": "La avería afecta a llegadas próximas y requiere gestionar reservas con rapidez.",
   "department": "reservation_support"
 }
 
@@ -139,8 +148,10 @@ Response:
   "urgency": "high",
   "responsible_party": "platform",
   "summary": "El huésped no puede acceder al alojamiento porque el código no funciona.",
+  "justification": "El huésped está bloqueado fuera del alojamiento y necesita ayuda urgente para entrar.",
   "department": "reservation_support"
 }
 
-Use these examples as decision and format guides. Adapt every classification
-and summary to the facts and current reason for contact in the new request.
+Use these examples as decision and format guides. Adapt every classification,
+summary, and justification to the facts and current reason for contact in the
+new request.

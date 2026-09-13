@@ -48,6 +48,8 @@ class TriageResponse(BaseModel):
     responsible_party: Literal["host", "platform"]
 
     summary: str = Field(min_length=1)
+    justification: str = Field(min_length=1, max_length=500)
+
     # El departamento solo aplica cuando la solicitud va a la plataforma.
     department: Literal[
         "reservation_support",

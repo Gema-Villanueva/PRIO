@@ -9,6 +9,20 @@ from backend.integrations.schemas import GenerationResult
 MAX_ATTEMPTS = 3
 
 
+def calculate_retry_delay(response: httpx.Response, attempt: int) -> float:
+    # El proveedor puede indicar cuántos segundos debemos esperar.
+    retry_after = response.headers.get("retry-after")
+
+    if retry_after is not None:
+        try:
+            return max(float(retry_after), 0.0)
+        except ValueError:
+            pass
+
+    # Si no recibimos una espera válida, aplicamos backoff exponencial.
+    return float(2 ** attempt)
+
+
 def extract_output_text(response_data: dict) -> str:
     # Buscamos el texto generado dentro de la respuesta del proveedor externo.
     for output_item in response_data.get("output", []):
@@ -98,7 +112,7 @@ def generate_external_text(
             )
 
             if should_retry and attempt < MAX_ATTEMPTS - 1:
-                sleep(2 ** attempt)
+                sleep(calculate_retry_delay(response, attempt))
                 continue
 
             response.raise_for_status()

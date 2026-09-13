@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from backend.integrations.ollama_client import generate_text
 from backend.integrations.external_client import (
     calculate_external_cost,
+    calculate_retry_delay,
     generate_external_text,
 )
 from backend.config import settings
@@ -119,6 +120,7 @@ def test_external_client_returns_generation_metrics():
 def test_external_client_retries_after_rate_limit():
     rate_limit_response = MagicMock()
     rate_limit_response.status_code = 429
+    rate_limit_response.headers = {}
 
     success_response = MagicMock()
     success_response.status_code = 200
@@ -170,3 +172,11 @@ def test_external_client_retries_after_rate_limit():
     mocked_sleep.assert_called_once_with(1)
     assert result.provider == "groq"
     assert result.estimated_cost_usd == 0.0
+
+
+# Respetamos la espera solicitada por el proveedor externo.
+def test_external_retry_uses_retry_after_header():
+    response = MagicMock()
+    response.headers = {"retry-after": "12.5"}
+
+    assert calculate_retry_delay(response, attempt=0) == 12.5

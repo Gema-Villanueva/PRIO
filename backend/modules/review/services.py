@@ -19,6 +19,7 @@ def build_review_record(row: dict) -> ReviewRecord:
         urgency=row["llm_urgency"],
         responsible_party=row["llm_responsible_party"],
         summary=row["llm_summary"],
+        justification=row["llm_justification"],
         department=row["llm_department"],
     )
 
@@ -42,6 +43,7 @@ def build_review_record(row: dict) -> ReviewRecord:
             urgency=row["final_urgency"],
             responsible_party=row["final_responsible_party"],
             summary=row["final_summary"],
+            justification=row["final_justification"],
             department=row["final_department"],
             review_notes=row["review_notes"],
         )

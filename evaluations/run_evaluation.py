@@ -94,6 +94,7 @@ def main() -> None:
 
         # Mostramos ambos resúmenes para revisar su significado a mano.
         print(f"Model summary: {result.summary}")
+        print(f"Model justification: {result.justification}")
         print(f"Reference summary: {case['summary_reference']}")
         print(
             f"Metrics: {result.metrics.attempts} attempt(s), "

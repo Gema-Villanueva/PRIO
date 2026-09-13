@@ -27,6 +27,7 @@ def test_save_and_get_triage_request(tmp_path):
         urgency="medium",
         responsible_party="platform",
         summary="El huésped solicita cancelar una reserva futura.",
+        justification="La cancelación requiere una gestión de la plataforma sin peligro inmediato.",
         department="reservation_support",
         metrics=TriageMetrics(
             provider="ollama",
@@ -55,6 +56,7 @@ def test_save_and_get_triage_request(tmp_path):
     assert saved_request["message"] == request.message
     assert saved_request["llm_category"] == result.category
     assert saved_request["llm_summary"] == result.summary
+    assert saved_request["llm_justification"] == result.justification
     assert saved_request["provider"] == "ollama"
     assert saved_request["input_tokens"] == 80
     assert saved_request["review_status"] == "pending"
@@ -89,6 +91,7 @@ def test_save_and_get_triage_request(tmp_path):
     assert approved_request["final_category"] == result.category
     assert approved_request["final_urgency"] == result.urgency
     assert approved_request["final_summary"] == result.summary
+    assert approved_request["final_justification"] == result.justification
     assert approved_request["reviewed_at"] is not None
 
     # La solicitud aprobada ya no debe aparecer entre las pendientes.
@@ -106,6 +109,7 @@ def test_save_and_get_triage_request(tmp_path):
         urgency="high",
         responsible_party="platform",
         summary="El huésped necesita cancelar una reserva con atención prioritaria.",
+        justification="La proximidad de la llegada aumenta la prioridad de la cancelación.",
         department="reservation_support",
         review_notes="La llegada está próxima.",
     )
@@ -128,6 +132,7 @@ def test_save_and_get_triage_request(tmp_path):
     assert corrected_request["llm_urgency"] == "medium"
     assert corrected_request["final_urgency"] == "high"
     assert corrected_request["final_summary"] == correction.summary
+    assert corrected_request["final_justification"] == correction.justification
     assert corrected_request["review_notes"] == "La llegada está próxima."
     assert corrected_request["reviewed_at"] is not None
 

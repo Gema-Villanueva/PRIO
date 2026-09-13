@@ -20,6 +20,7 @@ def create_pending_record() -> ReviewRecord:
             urgency="medium",
             responsible_party="platform",
             summary="El huésped solicita cancelar una reserva futura.",
+            justification="La cancelación requiere una gestión sin peligro inmediato.",
             department="reservation_support",
         ),
         metrics=TriageMetrics(
@@ -104,6 +105,7 @@ def test_correct_review():
         "urgency": "high",
         "responsible_party": "platform",
         "summary": "El huésped necesita cancelar una reserva con atención prioritaria.",
+        "justification": "La llegada próxima requiere gestionar la cancelación con mayor prioridad.",
         "department": "reservation_support",
         "review_notes": "La llegada está próxima.",
     }

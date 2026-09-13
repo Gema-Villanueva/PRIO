@@ -38,6 +38,7 @@ def test_triage_trims_message():
         urgency="high",
         responsible_party="platform",
         summary="El huésped no puede entrar al alojamiento.",
+        justification="El acceso está bloqueado y requiere atención urgente de la plataforma.",
         department="reservation_support",
         metrics=TriageMetrics(
             provider="ollama",
@@ -119,6 +120,7 @@ def test_triage_response_accepts_valid_summary():
         urgency="high",
         responsible_party="platform",
         summary="Huésped sin acceso al alojamiento porque el código no funciona",
+        justification="El huésped está bloqueado fuera y necesita ayuda urgente para entrar.",
         department="reservation_support",
     )
 
@@ -138,6 +140,7 @@ def test_triage_response_rejects_short_summary():
             urgency="high",
             responsible_party="platform",
             summary="No puede entrar",
+            justification="El acceso está bloqueado y requiere atención urgente.",
             department="reservation_support",
         )
 
@@ -181,6 +184,7 @@ def test_classify_request_corrects_invalid_summary():
         "urgency": "high",
         "responsible_party": "platform",
         "summary": "No puede entrar",
+        "justification": "El acceso está bloqueado y requiere atención urgente.",
         "department": "reservation_support",
     }
 
@@ -241,6 +245,7 @@ def test_classify_request_stops_after_two_invalid_responses():
         "urgency": "high",
         "responsible_party": "platform",
         "summary": "No puede entrar",
+        "justification": "El acceso está bloqueado y requiere atención urgente.",
         "department": "reservation_support",
     }
 
@@ -264,6 +269,7 @@ def test_triage_response_accepts_summary_length_boundaries(word_count):
         urgency="low",
         responsible_party="host",
         summary=summary,
+        justification="Es una consulta informativa sin impacto inmediato.",
         department=None,
     )
 
@@ -281,6 +287,7 @@ def test_triage_response_rejects_summary_outside_limits(word_count):
             urgency="low",
             responsible_party="host",
             summary=summary,
+            justification="Es una consulta informativa sin impacto inmediato.",
             department=None,
         )
 
@@ -370,6 +377,7 @@ def test_triage_response_rejects_invalid_department_assignment(
             urgency="low",
             responsible_party=responsible_party,
             summary="El huésped solicita información sobre el alojamiento.",
+            justification="Es una consulta informativa sin impacto inmediato.",
             department=department,
         )
 
@@ -416,4 +424,5 @@ def test_triage_response_rejects_business_rule_conflicts(
         TriageResponse(
             **response_data,
             summary="La solicitud necesita una clasificación coherente para su revisión.",
+            justification="Los hechos requieren aplicar las reglas de clasificación establecidas.",
         )
