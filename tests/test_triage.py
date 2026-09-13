@@ -6,14 +6,14 @@ from pydantic import ValidationError
 from unittest.mock import patch 
 
 from backend.main import app
-from backend.integrations.ollama_client import GenerationResult
+from backend.integrations.schemas import GenerationResult
 from backend.modules.triage.schemas import (
     TriageMetrics,
     TriageRequest,
     TriageResponse,
     TriageResult,
 )
-from backend.modules.triage.services import classify_request 
+from backend.modules.triage.services import classify_request, generate_text
 
 # Creamos un cliente para probar la API sin arrancar Uvicorn.
 client = TestClient(app)
@@ -140,6 +140,33 @@ def test_triage_response_rejects_short_summary():
             summary="No puede entrar",
             department="reservation_support",
         )
+
+
+# Comprobamos que PRIO utiliza el cliente externo al seleccionar Groq.
+def test_generate_text_uses_groq_provider():
+    expected_generation = generation_result(
+        '{"category": "general"}',
+    )
+
+    with (
+        patch(
+            "backend.modules.triage.services.generate_external_text",
+            return_value=expected_generation,
+        ) as mock_external,
+        patch(
+            "backend.modules.triage.services.generate_ollama_text",
+        ) as mock_ollama,
+    ):
+        result = generate_text(
+            prompt="request",
+            system_prompt="system",
+            response_schema={"type": "object"},
+            provider="groq",
+        )
+
+    assert result == expected_generation
+    mock_external.assert_called_once()
+    mock_ollama.assert_not_called()
 
 
 # Simulamos una respuesta incorrecta seguida de una corrección válida.

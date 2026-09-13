@@ -46,9 +46,14 @@ Priority guidelines:
 - high: a time-sensitive problem preventing current access, seriously
   disrupting an ongoing stay, or requiring immediate action for an
   imminent arrival, including affected reservations for today.
+  An active prohibited party or ongoing disturbance affecting neighbors is high,
+  even when no immediate physical danger is reported.
 - medium: a problem requiring attention without immediate danger or
   serious time-sensitive disruption.
 - low: a general information request without immediate impact.
+  Use low only for informational questions that require no operational action.
+  A pending refund, payout, booking change, cancellation, repair, or missing
+  advertised amenity is at least medium, even when it is not time-sensitive.
 
 Do not assign critical solely because a past incident involved danger.
 Determine urgency independently from who will handle the request.

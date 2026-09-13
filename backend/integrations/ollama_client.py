@@ -1,20 +1,9 @@
-from dataclasses import dataclass
 from time import perf_counter
 
 import httpx
 
 from backend.config import settings
-
-
-@dataclass(frozen=True)
-class GenerationResult:
-    text: str
-    input_tokens: int
-    output_tokens: int
-    latency_ms: float
-    provider: str
-    model: str
-    estimated_cost_usd: float
+from backend.integrations.schemas import GenerationResult
 
 
 def generate_text(

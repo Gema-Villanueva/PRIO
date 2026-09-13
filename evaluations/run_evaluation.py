@@ -1,6 +1,7 @@
 import json
 import argparse
 from pathlib import Path
+from time import sleep
 
 import httpx
 from pydantic import ValidationError
@@ -11,7 +12,7 @@ from backend.modules.triage.services import classify_request
 
 # Localizamos los casos desde la carpeta principal del proyecto.
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-CASES_PATH = PROJECT_ROOT / "data" / "demo_cases.json"
+CASES_PATH = PROJECT_ROOT / "data" / "evaluation_cases.json"
 
 
 def main() -> None:
@@ -22,6 +23,14 @@ def main() -> None:
         default=CASES_PATH,
         help="Path to the JSON file containing the evaluation cases",
     )
+
+    parser.add_argument(
+        "--provider",
+        choices=["ollama", "groq"],
+        default="ollama",
+        help="LLM provider used during the evaluation",
+    )
+
     arguments = parser.parse_args()
 
     cases_path = arguments.cases
@@ -45,7 +54,11 @@ def main() -> None:
         request = TriageRequest(
             message=case["message"],
             user_role=case["user_role"],
+            provider=arguments.provider,
         )
+        # Respetamos el límite de tokens del plan gratuito de Groq.
+        if arguments.provider == "groq":
+            sleep(15)
 
         try:
             result = classify_request(request)

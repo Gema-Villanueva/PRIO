@@ -1,12 +1,21 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 
 # Definimos los datos necesarios para solicitar un triaje.
 class TriageRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     message: str = Field(min_length=1, max_length=5000)
     user_role: Literal["guest", "host"]
+    provider: Literal["ollama", "groq"] = "ollama"
 
     # Eliminamos espacios exteriores y rechazamos mensajes sin contenido.
     @field_validator("message")
@@ -22,6 +31,8 @@ class TriageRequest(BaseModel):
 
 # Definimos la estructura del resultado del triaje.
 class TriageResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     category: Literal[
         "access",
         "booking",

@@ -8,7 +8,9 @@ from backend.modules.triage.schemas import (
     TriageResponse,
     TriageResult,
 )
-from backend.integrations.ollama_client import GenerationResult, generate_text
+from backend.integrations.external_client import generate_external_text
+from backend.integrations.ollama_client import generate_text as generate_ollama_text
+from backend.integrations.schemas import GenerationResult
 
 
 # Construimos la ruta al archivo que contiene las instrucciones del modelo.
@@ -26,9 +28,30 @@ def load_triage_prompt() -> str:
     # UTF-8 permite interpretar correctamente tildes y otros caracteres.
     return PROMPT_PATH.read_text(encoding="utf-8")
 
+
+def generate_text(
+    prompt: str,
+    system_prompt: str,
+    response_schema: dict,
+    provider: str,
+) -> GenerationResult:
+    # Elegimos el cliente solicitado por la aplicación.
+    if provider == "groq":
+        return generate_external_text(
+            prompt=prompt,
+            system_prompt=system_prompt,
+            response_schema=response_schema,
+        )
+
+    return generate_ollama_text(
+        prompt=prompt,
+        system_prompt=system_prompt,
+        response_schema=response_schema,
+    )
+
 def build_request_prompt(request: TriageRequest) -> str:
     # Convertimos la solicitud validada en un diccionario de Python.
-    request_data = request.model_dump()
+    request_data = request.model_dump(exclude={"provider"})
 
     # Lo convertimos en texto JSON para enviarlo al modelo.
     # Conservamos las tildes y usamos sangría para facilitar su lectura.
@@ -64,6 +87,7 @@ def classify_request(request: TriageRequest) -> TriageResult:
         prompt=request_prompt,
         system_prompt=system_prompt,
         response_schema=response_schema,
+        provider=request.provider,
     )
     generations = [first_generation]
 
@@ -87,6 +111,7 @@ def classify_request(request: TriageRequest) -> TriageResult:
             prompt=correction_prompt,
             system_prompt=system_prompt,
             response_schema=response_schema,
+            provider=request.provider,
         )
         generations.append(corrected_generation)
 
