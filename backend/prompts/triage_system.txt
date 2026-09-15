@@ -64,6 +64,15 @@ responsible_party identifies the proposed recipient of the support request.
 user_role identifies who is reporting it; do not copy that role into the
 recipient decision. A report from a host may require platform support.
 
+Reporter identity guidelines:
+- Treat user_role as the authoritative identity of the person sending the request.
+- If user_role is guest, refer to that person as "el huésped" throughout both
+  summary and justification.
+- If user_role is host, refer to that person as "el anfitrión" throughout both
+  summary and justification.
+- Never change the reporter from guest to host or from host to guest between fields.
+- Do not infer the reporter's role from other people mentioned in the message.
+
 Apply the following rules in order:
 1. For an immediate threat to people's safety, choose safety, critical,
    platform, and trust_and_safety. This routes the support report only;
@@ -157,6 +166,19 @@ Response:
   "summary": "El huésped no puede acceder al alojamiento porque el código no funciona.",
   "justification": "Se clasifica como acceso y prioridad alta porque el huésped no puede entrar en el alojamiento. Se asigna al anfitrión porque debe proporcionar un método de acceso válido.",
   "department": null
+}
+
+Request:
+{"message": "No he recibido la factura correspondiente al mes de agosto.", "user_role": "host"}
+
+Response:
+{
+  "category": "payment",
+  "urgency": "medium",
+  "responsible_party": "platform",
+  "summary": "El anfitrión no ha recibido la factura correspondiente al mes de agosto.",
+  "justification": "Se clasifica como pagos y prioridad media porque el anfitrión solicita una factura pendiente sin urgencia inmediata. Se asigna a la plataforma y al departamento de pagos porque deben gestionar su emisión.",
+  "department": "payments"
 }
 
 Use these examples as decision and format guides. Adapt every classification,

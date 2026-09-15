@@ -1,8 +1,14 @@
 import httpx
 import streamlit as st
 
-from frontend.api_client import get_completed_reviews
-from frontend.styles import apply_global_styles
+from frontend.api_client import (
+    get_completed_reviews,
+    get_dispatches,
+)
+from frontend.styles import (
+    apply_global_styles,
+    render_admin_navigation,
+)
 
 
 # Configuramos la página del histórico.
@@ -13,12 +19,18 @@ st.set_page_config(
 )
 
 apply_global_styles()
-
+render_admin_navigation()
 
 # Traducimos los valores internos para mostrarlos en español.
 STATUS_LABELS = {
     "approved": "Aprobada",
     "corrected": "Corregida",
+}
+
+DISPATCH_STATUS_LABELS = {
+    "new": "Nueva",
+    "in_progress": "En gestión",
+    "resolved": "Resuelta",
 }
 
 CATEGORY_LABELS = {
@@ -69,6 +81,7 @@ st.write(
 # Recuperamos el histórico desde FastAPI.
 try:
     completed_reviews = get_completed_reviews()
+    dispatches = get_dispatches()
 
 except httpx.HTTPError:
     st.error(
@@ -81,6 +94,13 @@ except httpx.HTTPError:
 if not completed_reviews:
     st.info("Todavía no hay solicitudes revisadas.")
     st.stop()
+
+
+# Relacionamos cada solicitud revisada con su derivación.
+dispatch_by_request_id = {
+    dispatch["request_id"]: dispatch
+    for dispatch in dispatches
+}
 
 
 # Permitimos filtrar el histórico.
@@ -163,6 +183,7 @@ history_table = []
 
 for review in filtered_reviews:
     final_decision = review["final_decision"]
+    dispatch = dispatch_by_request_id.get(review["request_id"])
 
     history_table.append(
         {
@@ -180,6 +201,16 @@ for review in filtered_reviews:
             "Departamento": DEPARTMENT_LABELS[
                 final_decision["department"]
             ],
+            "Destino": (
+                dispatch["destination"]
+                if dispatch
+                else "Sin registro"
+            ),
+            "Gestión": (
+                DISPATCH_STATUS_LABELS[dispatch["status"]]
+                if dispatch
+                else "Sin registro"
+            ),
             "Fecha de revisión": review["reviewed_at"],
         }
     )
@@ -217,6 +248,7 @@ selected_review = next(
 proposal = selected_review["proposal"]
 final_decision = selected_review["final_decision"]
 metrics = selected_review["metrics"]
+selected_dispatch = dispatch_by_request_id.get(selected_request_id)
 
 
 st.markdown("#### Mensaje original")
@@ -314,6 +346,29 @@ else:
             f'**Notas de revisión:** '
             f'{final_decision["review_notes"]}'
         )
+
+
+st.markdown("#### Derivación")
+
+if selected_dispatch:
+    destination_column, management_column = st.columns(2)
+
+    destination_column.metric(
+        "Destino",
+        selected_dispatch["destination"],
+    )
+    management_column.metric(
+        "Estado de gestión",
+        DISPATCH_STATUS_LABELS[selected_dispatch["status"]],
+    )
+
+    st.write(selected_dispatch["message"])
+
+else:
+    st.info(
+        "Esta solicitud fue revisada antes de incorporar "
+        "las bandejas internas."
+    )
 
 
 st.markdown("#### Métricas de la petición")

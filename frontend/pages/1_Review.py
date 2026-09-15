@@ -6,7 +6,10 @@ from frontend.api_client import (
     correct_review,
     get_pending_reviews,
 )
-from frontend.styles import apply_global_styles
+from frontend.styles import (
+    apply_global_styles,
+    render_admin_navigation,
+)
 
 
 # Configuramos la página interna de revisión.
@@ -17,7 +20,7 @@ st.set_page_config(
 )
 
 apply_global_styles()
-
+render_admin_navigation()
 
 # Traducimos los valores técnicos del backend al español.
 CATEGORY_LABELS = {
@@ -57,11 +60,10 @@ ROLE_LABELS = {
 }
 
 
-st.title("Revisión humana")
+st.title("Revisión de solicitudes pendientes")
 
 st.write(
-    "Panel interno para revisar las clasificaciones propuestas "
-    "por la inteligencia artificial."
+    "Revisa y valida las clasificaciones propuestas por la inteligencia artificial."
 )
 
 

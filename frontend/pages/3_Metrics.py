@@ -1,7 +1,9 @@
 import streamlit as st
 
-from frontend.styles import apply_global_styles
-
+from frontend.styles import (
+    apply_global_styles,
+    render_admin_navigation,
+)
 
 # Configuramos la página de comparación.
 st.set_page_config(
@@ -11,7 +13,7 @@ st.set_page_config(
 )
 
 apply_global_styles()
-
+render_admin_navigation()
 
 st.title("Comparación de modelos")
 

@@ -5,7 +5,10 @@ from frontend.api_client import (
     get_provider_configuration,
     update_provider_configuration,
 )
-from frontend.styles import apply_global_styles
+from frontend.styles import (
+    apply_global_styles,
+    render_admin_navigation,
+)
 
 
 # Configuramos la página interna de selección de proveedor.
@@ -16,7 +19,7 @@ st.set_page_config(
 )
 
 apply_global_styles()
-
+render_admin_navigation()
 
 PROVIDER_LABELS = {
     "auto": "Automático",

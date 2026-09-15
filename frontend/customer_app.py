@@ -33,11 +33,31 @@ st.markdown(
 )
 
 
-st.title("Enviar un aviso")
+# Cabecera visible del portal de ayuda.
+st.markdown(
+    """
+    <div class="prio-hero">
+        <h1>PRIO Ayuda</h1>
+        <p>Atención para huéspedes y anfitriones</p>
+        <p>
+            Envíanos tu aviso de forma sencilla y lo dirigiremos
+            a la persona adecuada.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+st.subheader("¿Cómo podemos ayudarte?")
 
 st.write(
-    "Cuéntanos qué ha ocurrido y nuestro equipo revisará tu solicitud "
-    "lo antes posible."
+    "Describe lo ocurrido con el mayor detalle posible. "
+    "Analizaremos tu petición y nos pondremos en contacto contigo."
+)
+
+st.caption(
+    "🔒 La información se utiliza únicamente para gestionar tu solicitud."
 )
 
 

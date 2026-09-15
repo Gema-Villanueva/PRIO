@@ -2,8 +2,12 @@ from backend.db.database import (
     approve_triage_request,
     correct_triage_request,
     get_triage_request,
+    list_dispatches,
+    list_completed_requests,
     list_pending_requests,
+    save_dispatch,
     save_triage_request,
+    update_dispatch_status,
 )
 from backend.modules.triage.schemas import (
     TriageMetrics,
@@ -138,6 +142,14 @@ def test_save_and_get_triage_request(tmp_path):
 
     # Ya no debe quedar ninguna solicitud pendiente.
     assert list_pending_requests(database_path) == []
+    # El histórico contiene tanto aprobadas como corregidas.
+    completed_requests = list_completed_requests(database_path)
+
+    assert len(completed_requests) == 2
+    assert {
+        row["review_status"]
+        for row in completed_requests
+    } == {"approved", "corrected"}
 
     # Una solicitud corregida no puede volver a corregirse.
     assert (
@@ -151,3 +163,30 @@ def test_save_and_get_triage_request(tmp_path):
 
     # Un identificador inexistente debe devolver None.
     assert get_triage_request(999, database_path) is None
+
+    # Registramos y gestionamos la derivación de una solicitud revisada.
+    dispatch_id = save_dispatch(
+        request_id=request_id,
+        dispatch_type="department_assignment",
+        destination="Soporte de reservas",
+        message="Nueva solicitud asignada a Soporte de reservas.",
+        database_path=database_path,
+    )
+
+    dispatches = list_dispatches(database_path)
+
+    assert len(dispatches) == 1
+    assert dispatches[0]["id"] == dispatch_id
+    assert dispatches[0]["request_id"] == request_id
+    assert dispatches[0]["status"] == "new"
+
+    assert (
+        update_dispatch_status(
+            dispatch_id,
+            "in_progress",
+            database_path,
+        )
+        is True
+    )
+    assert list_dispatches(database_path)[0]["status"] == "in_progress"
+    assert update_dispatch_status(999, "resolved", database_path) is False

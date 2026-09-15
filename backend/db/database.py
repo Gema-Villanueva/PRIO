@@ -59,12 +59,28 @@ CREATE TABLE IF NOT EXISTS triage_requests (
 )
 """
 
+# Guardamos cada notificación o derivación realizada después de la revisión.
+CREATE_DISPATCHES_TABLE = """
+CREATE TABLE IF NOT EXISTS dispatches (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id INTEGER NOT NULL,
+    dispatch_type TEXT NOT NULL,
+    destination TEXT NOT NULL,
+    message TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'new',
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (request_id) REFERENCES triage_requests(id)
+)
+"""
+
+
 def initialize_database(
     database_path: str | Path | None = None,
 ) -> None:
     # Cerramos la conexión después de crear y confirmar la tabla.
     with closing(connect_database(database_path)) as connection:
         connection.execute(CREATE_TRIAGE_REQUESTS_TABLE)
+        connection.execute(CREATE_DISPATCHES_TABLE)
 
         # Añadimos las columnas nuevas también a bases de datos ya existentes.
         columns = {
@@ -290,3 +306,82 @@ def correct_triage_request(
         was_updated = cursor.rowcount == 1
 
     return was_updated
+
+
+def save_dispatch(
+    request_id: int,
+    dispatch_type: str,
+    destination: str,
+    message: str,
+    status: str = "new",
+    database_path: str | Path | None = None,
+) -> int:
+    # Guardamos una notificación al anfitrión o una derivación interna.
+    initialize_database(database_path)
+
+    with closing(connect_database(database_path)) as connection:
+        cursor = connection.execute(
+            """
+            INSERT INTO dispatches (
+                request_id,
+                dispatch_type,
+                destination,
+                message,
+                status
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                request_id,
+                dispatch_type,
+                destination,
+                message,
+                status,
+            ),
+        )
+
+        connection.commit()
+        return cursor.lastrowid
+
+def list_dispatches(
+    database_path: str | Path | None = None,
+) -> list[dict]:
+    # Recuperamos las derivaciones más recientes primero.
+    initialize_database(database_path)
+
+    with closing(connect_database(database_path)) as connection:
+        rows = connection.execute(
+            """
+            SELECT *
+            FROM dispatches
+            ORDER BY created_at DESC, id DESC
+            """
+        ).fetchall()
+
+    return [dict(row) for row in rows]
+
+
+def update_dispatch_status(
+    dispatch_id: int,
+    status: str,
+    database_path: str | Path | None = None,
+) -> bool:
+    # Actualizamos el estado de una solicitud dentro de su bandeja.
+    initialize_database(database_path)
+
+    with closing(connect_database(database_path)) as connection:
+        cursor = connection.execute(
+            """
+            UPDATE dispatches
+            SET status = ?
+            WHERE id = ?
+            """,
+            (
+                status,
+                dispatch_id,
+            ),
+        )
+
+        connection.commit()
+
+    return cursor.rowcount == 1

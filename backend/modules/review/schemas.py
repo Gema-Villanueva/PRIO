@@ -32,3 +32,29 @@ class ReviewRecord(BaseModel):
 
     created_at: str
     reviewed_at: str | None = None
+
+
+# Representación de una solicitud derivada a una bandeja interna.
+class DispatchRecord(BaseModel):
+    id: int = Field(ge=1)
+    request_id: int = Field(ge=1)
+    dispatch_type: Literal[
+        "host_notification",
+        "department_assignment",
+    ]
+    destination: str
+    message: str
+    status: Literal[
+        "new",
+        "in_progress",
+        "resolved",
+    ]
+    created_at: str
+
+# Estado que puede seleccionarse desde una bandeja interna.
+class DispatchStatusUpdate(BaseModel):
+    status: Literal[
+        "new",
+        "in_progress",
+        "resolved",
+    ]

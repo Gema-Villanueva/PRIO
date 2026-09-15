@@ -1,7 +1,10 @@
 import streamlit as st
 
 from frontend.api_client import check_api_health
-from frontend.styles import apply_global_styles
+from frontend.styles import (
+    apply_global_styles,
+    render_admin_navigation,
+)
 
 
 # Esta aplicación está destinada al equipo interno.
@@ -13,6 +16,7 @@ st.set_page_config(
 )
 
 apply_global_styles()
+render_admin_navigation()
 
 
 # Cabecera principal del panel de operaciones.
@@ -41,18 +45,18 @@ else:
     )
 
 
-st.subheader("Herramientas del equipo")
+st.subheader("Herramientas internas")
 
 
-# El panel interno ofrece revisión, histórico y métricas.
-review_column, history_column, metrics_column = st.columns(3)
+# Primera fila: revisión, bandejas e histórico.
+review_column, inbox_column, history_column = st.columns(3)
 
 
 with review_column:
     st.markdown(
         """
         <div class="prio-card">
-            <h3>Revisión humana</h3>
+            <h3>Revisión de solicitudes pendientes</h3>
             <p class="prio-muted">
                 Consulta las solicitudes pendientes y aprueba o corrige
                 la clasificación propuesta por el modelo.
@@ -70,14 +74,36 @@ with review_column:
     )
 
 
+with inbox_column:
+    st.markdown(
+        """
+        <div class="prio-card">
+            <h3>Bandejas</h3>
+            <p class="prio-muted">
+                Consulta las solicitudes derivadas al anfitrión
+                o a los departamentos y actualiza su estado.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.page_link(
+        "pages/5_Inboxes.py",
+        label="Gestionar bandejas",
+        icon="📥",
+        use_container_width=True,
+    )
+
+
 with history_column:
     st.markdown(
         """
         <div class="prio-card">
             <h3>Historial</h3>
             <p class="prio-muted">
-                Consulta las solicitudes aprobadas o corregidas
-                y compara la propuesta con la decisión final.
+                Consulta las solicitudes revisadas y sigue su destino
+                y estado de gestión.
             </p>
         </div>
         """,
@@ -90,6 +116,10 @@ with history_column:
         icon="🗂️",
         use_container_width=True,
     )
+
+
+# Segunda fila: comparación y configuración.
+metrics_column, settings_column = st.columns(2)
 
 
 with metrics_column:
@@ -113,6 +143,26 @@ with metrics_column:
         use_container_width=True,
     )
 
+with settings_column:
+    st.markdown(
+        """
+        <div class="prio-card">
+            <h3>Configuración</h3>
+            <p class="prio-muted">
+                Selecciona el proveedor utilizado por PRIO
+                o activa el modo automático con respaldo local.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.page_link(
+        "pages/4_Settings.py",
+        label="Configurar proveedor",
+        icon="⚙️",
+        use_container_width=True,
+    )
 
 st.divider()
 

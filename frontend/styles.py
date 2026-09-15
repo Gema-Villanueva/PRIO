@@ -102,3 +102,54 @@ def apply_global_styles() -> None:
         """,
         unsafe_allow_html=True,
     )
+
+
+def render_admin_navigation() -> None:
+    """Muestra el menú en español del panel interno."""
+
+    with st.sidebar:
+        st.markdown("## ⚡ PRIO")
+        st.caption("Panel interno")
+
+        st.page_link(
+            "app.py",
+            label="Inicio",
+            icon="🏠",
+            use_container_width=True,
+        )
+
+        st.page_link(
+            "pages/1_Review.py",
+            label="Revisión",
+            icon="✅",
+            use_container_width=True,
+        )
+
+        st.page_link(
+        "pages/5_Inboxes.py",
+        label="Bandejas",
+        icon="📥",
+        use_container_width=True,
+        )
+
+        st.page_link(
+            "pages/2_History.py",
+            label="Historial",
+            icon="🗂️",
+            use_container_width=True,
+        )
+
+        st.page_link(
+            "pages/3_Metrics.py",
+            label="Métricas",
+            icon="📊",
+            use_container_width=True,
+        )
+
+        st.page_link(
+            "pages/4_Settings.py",
+            label="Configuración",
+            icon="⚙️",
+            use_container_width=True,
+        )
+

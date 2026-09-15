@@ -134,3 +134,36 @@ def correct_review(
     response.raise_for_status()
 
     return response.json()
+
+
+def get_dispatches() -> list[dict]:
+    """Obtiene las solicitudes enviadas a las bandejas internas."""
+
+    response = httpx.get(
+        f"{settings.api_base_url}/reviews/dispatches",
+        timeout=10.0,
+    )
+
+    response.raise_for_status()
+
+    return response.json()
+
+
+def update_dispatch_status(
+    dispatch_id: int,
+    status: str,
+) -> dict:
+    """Cambia el estado de una solicitud derivada."""
+
+    response = httpx.put(
+        (
+            f"{settings.api_base_url}/reviews/"
+            f"dispatches/{dispatch_id}/status"
+        ),
+        json={"status": status},
+        timeout=10.0,
+    )
+
+    response.raise_for_status()
+
+    return response.json()
