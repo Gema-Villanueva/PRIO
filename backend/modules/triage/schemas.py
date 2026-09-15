@@ -9,13 +9,20 @@ from pydantic import (
 )
 
 
+# Configuración elegida por el equipo para seleccionar proveedor.
+class ProviderConfiguration(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    mode: Literal["auto", "groq", "ollama"]
+
+
 # Definimos los datos necesarios para solicitar un triaje.
 class TriageRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     message: str = Field(min_length=1, max_length=5000)
     user_role: Literal["guest", "host"]
-    provider: Literal["ollama", "groq"] = "ollama"
+    provider: Literal["auto", "ollama", "groq"] = "ollama"
 
     # Eliminamos espacios exteriores y rechazamos mensajes sin contenido.
     @field_validator("message")

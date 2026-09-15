@@ -197,6 +197,28 @@ def list_pending_requests(
     return [dict(row) for row in rows]
 
 
+def list_completed_requests(
+    database_path: str | Path | None = None,
+) -> list[dict]:
+    """Devuelve las solicitudes que ya han sido revisadas."""
+
+    # Nos aseguramos de que la tabla exista antes de consultarla.
+    initialize_database(database_path)
+
+    with closing(connect_database(database_path)) as connection:
+        rows = connection.execute(
+            """
+            SELECT *
+            FROM triage_requests
+            WHERE review_status IN ('approved', 'corrected')
+            ORDER BY reviewed_at DESC, id DESC
+            """
+        ).fetchall()
+
+    # Convertimos las filas de SQLite en diccionarios.
+    return [dict(row) for row in rows]
+
+
 def approve_triage_request(
     request_id: int,
     database_path: str | Path | None = None,

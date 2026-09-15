@@ -13,7 +13,11 @@ from backend.modules.triage.schemas import (
     TriageResponse,
     TriageResult,
 )
-from backend.modules.triage.services import classify_request, generate_text
+from backend.modules.triage.provider_settings import set_provider_mode
+from backend.modules.triage.services import (
+    classify_request,
+    generate_text,
+)
 
 # Creamos un cliente para probar la API sin arrancar Uvicorn.
 client = TestClient(app)
@@ -426,3 +430,76 @@ def test_triage_response_rejects_business_rule_conflicts(
             summary="La solicitud necesita una clasificación coherente para su revisión.",
             justification="Los hechos requieren aplicar las reglas de clasificación establecidas.",
         )
+
+# Comprobamos que la configuración del proveedor puede consultarse y cambiarse.
+def test_provider_configuration_endpoints():
+    set_provider_mode("auto")
+
+    try:
+        response = client.get("/triage/provider")
+
+        assert response.status_code == 200
+        assert response.json() == {"mode": "auto"}
+
+        response = client.put(
+            "/triage/provider",
+            json={"mode": "ollama"},
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {"mode": "ollama"}
+
+        response = client.get("/triage/provider")
+
+        assert response.status_code == 200
+        assert response.json() == {"mode": "ollama"}
+
+    finally:
+        # Evitamos que esta prueba cambie la configuración de las demás.
+        set_provider_mode("auto")
+
+
+# Comprobamos que el modo automático usa Ollama si Groq falla.
+def test_auto_provider_falls_back_to_ollama():
+    request = TriageRequest(
+        message="Necesito ayuda con una reserva.",
+        user_role="guest",
+        provider="auto",
+    )
+
+    expected_result = TriageResult(
+        category="booking",
+        urgency="medium",
+        responsible_party="platform",
+        summary="El huésped necesita ayuda para gestionar una reserva.",
+        justification=(
+            "Se clasifica como reservas y prioridad media. "
+            "La plataforma debe gestionar la solicitud."
+        ),
+        department="reservation_support",
+        metrics=TriageMetrics(
+            provider="ollama",
+            model="llama3.2:3b",
+            attempts=1,
+            input_tokens=10,
+            output_tokens=5,
+            latency_ms=20.0,
+            estimated_cost_usd=0.0,
+        ),
+    )
+
+    set_provider_mode("auto")
+
+    with patch(
+        "backend.modules.triage.services.classify_with_provider",
+        side_effect=[
+            httpx.ConnectError("Groq is unavailable"),
+            expected_result,
+        ],
+    ) as mock_classify:
+        result = classify_request(request)
+
+    assert result == expected_result
+    assert mock_classify.call_count == 2
+    assert mock_classify.call_args_list[0].kwargs["provider"] == "groq"
+    assert mock_classify.call_args_list[1].kwargs["provider"] == "ollama"

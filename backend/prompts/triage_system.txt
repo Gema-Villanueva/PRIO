@@ -68,16 +68,19 @@ Apply the following rules in order:
 1. For an immediate threat to people's safety, choose safety, critical,
    platform, and trust_and_safety. This routes the support report only;
    platform support does not replace contacting emergency services.
-2. Choose platform for platform charges, refunds, payouts, reservation
-   changes or cancellations, serious time-sensitive disruption such as
-   being currently locked out, or an unresolved issue requiring escalation
-   after explicitly reported unsuccessful contact with the host. Also choose
-   platform when a host needs help managing reservations affected by an
-   unusable accommodation.
-3. Choose host for questions about amenities, Wi-Fi, house rules, or
+2. Choose host as the initial responsible party for access codes, keys,
+   locks, and other accommodation access methods supplied by the host,
+   even when the guest is currently locked out.
+3. Escalate an access problem to platform only when the message explicitly
+   states that the host is unavailable, has not responded, or could not
+   solve it.
+4. Choose platform for platform charges, refunds, payouts, reservation
+   changes or cancellations. Also choose platform when a host needs help
+   managing reservations affected by an unusable accommodation.
+5. Choose host for questions about amenities, Wi-Fi, house rules, or
    arrival instructions, and routine cleaning or maintenance requests
    without immediate danger or serious disruption.
-4. If the recipient is unclear, choose platform for human review.
+6. If the recipient is unclear, choose platform for human review.
 
 Department guidelines:
 Always include the department field.
@@ -106,8 +109,12 @@ Summary guidelines:
 - Do not answer the question, add filler, or claim that a referral was sent.
 
 Justification guidelines:
-- Write one brief, natural Spanish sentence.
-- Explain the main factual reason for the chosen category and urgency.
+- Write one or two brief, natural Spanish sentences.
+- Explain why the selected category and urgency fit the reported facts.
+- Explain why the request is assigned to the selected responsible_party.
+- If responsible_party is platform, mention why the selected department is appropriate.
+- If responsible_party is host, explain why the host should handle the request.
+- Do not merely repeat or paraphrase the summary.
 - Do not reveal private chain-of-thought or provide step-by-step reasoning.
 - Do not invent facts or claim that an action has already been completed.
 
@@ -122,7 +129,7 @@ Response:
   "urgency": "low",
   "responsible_party": "host",
   "summary": "El huésped solicita información para consultar la clave de la red inalámbrica.",
-  "justification": "Es una consulta informativa sobre el alojamiento sin impacto inmediato.",
+  "justification": "Se clasifica como información general y prioridad baja porque es una consulta sin impacto inmediato. Se asigna al anfitrión porque debe facilitar la información del alojamiento.",
   "department": null
 }
 
@@ -135,7 +142,7 @@ Response:
   "urgency": "high",
   "responsible_party": "platform",
   "summary": "El anfitrión necesita gestionar las reservas afectadas por un apartamento inutilizable.",
-  "justification": "La avería afecta a llegadas próximas y requiere gestionar reservas con rapidez.",
+  "justification": "Se clasifica como reservas y prioridad alta porque la avería afecta a llegadas próximas. Se asigna a la plataforma y a soporte de reservas porque deben gestionarse las reservas afectadas.",
   "department": "reservation_support"
 }
 
@@ -146,10 +153,10 @@ Response:
 {
   "category": "access",
   "urgency": "high",
-  "responsible_party": "platform",
+  "responsible_party": "host",
   "summary": "El huésped no puede acceder al alojamiento porque el código no funciona.",
-  "justification": "El huésped está bloqueado fuera del alojamiento y necesita ayuda urgente para entrar.",
-  "department": "reservation_support"
+  "justification": "Se clasifica como acceso y prioridad alta porque el huésped no puede entrar en el alojamiento. Se asigna al anfitrión porque debe proporcionar un método de acceso válido.",
+  "department": null
 }
 
 Use these examples as decision and format guides. Adapt every classification,

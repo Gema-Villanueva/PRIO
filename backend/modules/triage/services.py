@@ -1,4 +1,5 @@
 import json
+import httpx
 from pathlib import Path
 from pydantic import ValidationError
 
@@ -11,6 +12,7 @@ from backend.modules.triage.schemas import (
 from backend.integrations.external_client import generate_external_text
 from backend.integrations.ollama_client import generate_text as generate_ollama_text
 from backend.integrations.schemas import GenerationResult
+from backend.modules.triage.provider_settings import get_provider_mode
 
 
 # Construimos la ruta al archivo que contiene las instrucciones del modelo.
@@ -77,7 +79,10 @@ def build_triage_result(
     return TriageResult(**response.model_dump(), metrics=metrics)
 
 
-def classify_request(request: TriageRequest) -> TriageResult:
+def classify_with_provider(
+    request: TriageRequest,
+    provider: str,
+) -> TriageResult:
     # Cargamos las instrucciones y los datos de la solicitud.
     system_prompt = load_triage_prompt()
     request_prompt = build_request_prompt(request)
@@ -87,7 +92,7 @@ def classify_request(request: TriageRequest) -> TriageResult:
         prompt=request_prompt,
         system_prompt=system_prompt,
         response_schema=response_schema,
-        provider=request.provider,
+        provider=provider,
     )
     generations = [first_generation]
 
@@ -111,7 +116,7 @@ def classify_request(request: TriageRequest) -> TriageResult:
             prompt=correction_prompt,
             system_prompt=system_prompt,
             response_schema=response_schema,
-            provider=request.provider,
+            provider=provider,
         )
         generations.append(corrected_generation)
 
@@ -119,3 +124,34 @@ def classify_request(request: TriageRequest) -> TriageResult:
         # no hacemos más intentos dentro de esta función.
         response = TriageResponse.model_validate_json(corrected_generation.text)
         return build_triage_result(response, generations)
+
+
+def classify_request(request: TriageRequest) -> TriageResult:
+    """Clasifica la solicitud aplicando el modo elegido por el equipo."""
+
+    # Si la petición indica auto, consultamos la configuración interna.
+    if request.provider == "auto":
+        selected_provider = get_provider_mode()
+    else:
+        selected_provider = request.provider
+
+    # Los modos forzados utilizan únicamente el proveedor seleccionado.
+    if selected_provider in {"groq", "ollama"}:
+        return classify_with_provider(
+            request=request,
+            provider=selected_provider,
+        )
+
+    # En modo automático intentamos primero el proveedor más rápido.
+    try:
+        return classify_with_provider(
+            request=request,
+            provider="groq",
+        )
+
+    except (httpx.HTTPError, ValidationError):
+        # Si Groq falla, continuamos localmente con Ollama.
+        return classify_with_provider(
+            request=request,
+            provider="ollama",
+        )

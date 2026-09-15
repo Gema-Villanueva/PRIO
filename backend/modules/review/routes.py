@@ -10,6 +10,7 @@ from backend.modules.review.schemas import (
 )
 from backend.modules.review.services import (
     get_review_record,
+    list_completed_review_records,
     list_pending_review_records,
 )
 
@@ -21,6 +22,13 @@ router = APIRouter(prefix="/reviews", tags=["Reviews"])
 def get_pending_reviews() -> list[ReviewRecord]:
     # Devolvemos la cola de propuestas pendientes de revisión humana.
     return list_pending_review_records()
+
+
+@router.get("/completed", response_model=list[ReviewRecord])
+def get_completed_reviews() -> list[ReviewRecord]:
+    """Devuelve el histórico de solicitudes revisadas."""
+
+    return list_completed_review_records()
 
 
 @router.get("/{request_id}", response_model=ReviewRecord)

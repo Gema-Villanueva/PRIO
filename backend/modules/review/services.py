@@ -1,5 +1,6 @@
 from backend.db.database import (
     get_triage_request,
+    list_completed_requests,
     list_pending_requests,
 )
 from backend.modules.review.schemas import (
@@ -72,5 +73,13 @@ def get_review_record(request_id: int) -> ReviewRecord | None:
 
 def list_pending_review_records() -> list[ReviewRecord]:
     rows = list_pending_requests()
+
+    return [build_review_record(row) for row in rows]
+
+
+def list_completed_review_records() -> list[ReviewRecord]:
+    """Construye el histórico de solicitudes ya revisadas."""
+
+    rows = list_completed_requests()
 
     return [build_review_record(row) for row in rows]

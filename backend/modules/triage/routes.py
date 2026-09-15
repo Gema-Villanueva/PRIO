@@ -2,13 +2,49 @@ import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
 
-from backend.modules.triage.schemas import StoredTriageResult, TriageRequest
-from backend.modules.triage.services import classify_request
 from backend.db.database import save_triage_request
+from backend.modules.triage.provider_settings import (
+    get_provider_mode,
+    set_provider_mode,
+)
+from backend.modules.triage.schemas import (
+    ProviderConfiguration,
+    StoredTriageResult,
+    TriageRequest,
+)
+from backend.modules.triage.services import classify_request
 
 
 # Agrupamos las rutas relacionadas con el triaje.
 router = APIRouter(prefix="/triage", tags=["Triage"])
+
+
+@router.get(
+    "/provider",
+    response_model=ProviderConfiguration,
+)
+def get_provider_configuration() -> ProviderConfiguration:
+    """Devuelve el modo de proveedor seleccionado por el equipo."""
+
+    return ProviderConfiguration(
+        mode=get_provider_mode(),
+    )
+
+
+@router.put(
+    "/provider",
+    response_model=ProviderConfiguration,
+)
+def update_provider_configuration(
+    configuration: ProviderConfiguration,
+) -> ProviderConfiguration:
+    """Cambia el modo utilizado para las próximas solicitudes."""
+
+    selected_mode = set_provider_mode(configuration.mode)
+
+    return ProviderConfiguration(
+        mode=selected_mode,
+    )
 
 
 @router.post("/", response_model=StoredTriageResult)
