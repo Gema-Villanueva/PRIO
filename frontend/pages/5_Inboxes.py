@@ -70,7 +70,7 @@ if not dispatches:
     st.stop()
 
 
-status_options = ["all", "new", "in_progress", "resolved"]
+status_options = ["active", "all", "new", "in_progress", "resolved"]
 destination_options = [
     "Anfitrión",
     "Soporte de reservas",
@@ -87,6 +87,7 @@ with status_column:
         "Estado",
         options=status_options,
         format_func=lambda value: {
+            "active": "Activas",
             "all": "Todos",
             **STATUS_LABELS,
         }[value],
@@ -127,7 +128,13 @@ filtered_dispatches = []
 
 for dispatch in dispatches:
     if (
-        selected_status != "all"
+        selected_status == "active"
+        and dispatch["status"] == "resolved"
+    ):
+        continue
+
+    if (
+        selected_status not in {"active", "all"}
         and dispatch["status"] != selected_status
     ):
         continue
