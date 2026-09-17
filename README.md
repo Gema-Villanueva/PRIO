@@ -59,13 +59,18 @@ flowchart TD
     D --> F[Ollama]
     E --> G[Propuesta validada]
     F --> G
-    G --> H[Revisión]
-    H --> I{Destino final}
-    I --> J[Bandeja del anfitrión]
-    I --> K[Bandeja del departamento]
+    G --> H[Revisión humana]
+    H --> I{¿La clasificación es correcta?}
+    I -->|Sí| N[Aprobar propuesta]
+    I -->|No| O[Corregir clasificación]
+    N --> P[Decisión final validada]
+    O --> P
+    P --> Q{Destino final}
+    Q --> J[Bandeja del anfitrión]
+    Q --> K[Bandeja del departamento]
     J --> L[Nueva → En gestión → Resuelta]
     K --> L
-    H -->|Guarda la decisión revisada| M[Historial]
+    P -->|Guarda la decisión revisada| M[Historial]
     L -->|Actualiza el estado de gestión| M
 ```
 
