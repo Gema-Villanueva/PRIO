@@ -72,8 +72,8 @@ with st.form("live_comparison_form"):
         comparison_message = st.text_area(
             "Solicitud para comparar",
             placeholder=(
-                "Ejemplo: Hay un fuerte olor a gas dentro del "
-                "alojamiento y todavía estamos dentro."
+                "Ejemplo: He pagado la reserva, pero todavía "
+                "aparece como pendiente."
             ),
             height=100,
         )
