@@ -6,6 +6,7 @@ from backend.config import settings
 # Tiempo máximo que esperará el frontend a que el modelo responda.
 # Ollama puede tardar bastante más que una petición web normal.
 REQUEST_TIMEOUT_SECONDS = 90.0
+COMPARISON_TIMEOUT_SECONDS = 180.0
 
 
 def check_api_health() -> bool:
@@ -162,6 +163,26 @@ def update_dispatch_status(
         ),
         json={"status": status},
         timeout=10.0,
+    )
+
+    response.raise_for_status()
+
+    return response.json()
+
+
+def compare_triage_providers(
+    message: str,
+    user_role: str,
+) -> dict:
+    """Compara Groq y Ollama sin guardar solicitudes de demostración."""
+
+    response = httpx.post(
+        f"{settings.api_base_url}/triage/compare",
+        json={
+            "message": message,
+            "user_role": user_role,
+        },
+        timeout=COMPARISON_TIMEOUT_SECONDS,
     )
 
     response.raise_for_status()

@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import ValidationError
@@ -8,11 +10,16 @@ from backend.modules.triage.provider_settings import (
     set_provider_mode,
 )
 from backend.modules.triage.schemas import (
+    LiveComparisonResult,
     ProviderConfiguration,
     StoredTriageResult,
+    TriageComparisonRequest,
     TriageRequest,
 )
-from backend.modules.triage.services import classify_request
+from backend.modules.triage.services import (
+    classify_request,
+    classify_with_provider,
+)
 
 
 # Agrupamos las rutas relacionadas con el triaje.
@@ -45,6 +52,57 @@ def update_provider_configuration(
     return ProviderConfiguration(
         mode=selected_mode,
     )
+
+
+@router.post(
+    "/compare",
+    response_model=LiveComparisonResult,
+)
+def compare_providers(
+    comparison: TriageComparisonRequest,
+) -> LiveComparisonResult:
+    """Compara ambos proveedores sin guardar solicitudes de demostración."""
+
+    try:
+        request = TriageRequest(
+            message=comparison.message,
+            user_role=comparison.user_role,
+        )
+
+        # Ambos modelos trabajan al mismo tiempo. La comparación tarda lo que
+        # necesite el proveedor más lento, en lugar de sumar los dos tiempos.
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            futures = {
+                provider: executor.submit(
+                    classify_with_provider,
+                    request=request,
+                    provider=provider,
+                )
+                for provider in ("groq", "ollama")
+            }
+
+            return LiveComparisonResult(
+                groq=futures["groq"].result(),
+                ollama=futures["ollama"].result(),
+            )
+
+    except ValidationError as error:
+        raise HTTPException(
+            status_code=502,
+            detail="A model returned an invalid triage response.",
+        ) from error
+
+    except httpx.TimeoutException as error:
+        raise HTTPException(
+            status_code=504,
+            detail="A model provider timed out.",
+        ) from error
+
+    except httpx.HTTPError as error:
+        raise HTTPException(
+            status_code=502,
+            detail="A model provider request failed.",
+        ) from error
 
 
 @router.post("/", response_model=StoredTriageResult)

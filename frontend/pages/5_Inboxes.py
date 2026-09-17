@@ -32,6 +32,19 @@ TYPE_LABELS = {
     "department_assignment": "Derivación a departamento",
 }
 
+SORT_OPTIONS = {
+    "request_id": "Número de solicitud",
+    "destination": "Destino",
+    "status": "Estado",
+    "created_at": "Fecha",
+}
+
+STATUS_ORDER = {
+    "new": 0,
+    "in_progress": 1,
+    "resolved": 2,
+}
+
 
 st.title("Bandejas")
 
@@ -89,6 +102,27 @@ with destination_column:
     )
 
 
+sort_column, direction_column = st.columns(2)
+
+with sort_column:
+    selected_sort = st.selectbox(
+        "Ordenar por",
+        options=list(SORT_OPTIONS),
+        format_func=lambda value: SORT_OPTIONS[value],
+        index=3,
+    )
+
+with direction_column:
+    selected_direction = st.selectbox(
+        "Orden",
+        options=["descending", "ascending"],
+        format_func=lambda value: {
+            "descending": "Descendente",
+            "ascending": "Ascendente",
+        }[value],
+    )
+
+
 filtered_dispatches = []
 
 for dispatch in dispatches:
@@ -105,6 +139,22 @@ for dispatch in dispatches:
         continue
 
     filtered_dispatches.append(dispatch)
+
+
+def dispatch_sort_value(dispatch: dict):
+    if selected_sort == "status":
+        return STATUS_ORDER[dispatch["status"]]
+
+    if selected_sort == "destination":
+        return dispatch["destination"].casefold()
+
+    return dispatch[selected_sort]
+
+
+filtered_dispatches.sort(
+    key=dispatch_sort_value,
+    reverse=selected_direction == "descending",
+)
 
 
 if not filtered_dispatches:

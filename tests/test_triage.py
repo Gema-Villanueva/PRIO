@@ -503,3 +503,52 @@ def test_auto_provider_falls_back_to_ollama():
     assert mock_classify.call_count == 2
     assert mock_classify.call_args_list[0].kwargs["provider"] == "groq"
     assert mock_classify.call_args_list[1].kwargs["provider"] == "ollama"
+
+
+def test_live_comparison_uses_both_providers_without_saving():
+    def comparison_result(provider: str) -> TriageResult:
+        return TriageResult(
+            category="safety",
+            urgency="critical",
+            responsible_party="platform",
+            summary="Un fuerte olor a gas requiere atención inmediata.",
+            justification=(
+                "Existe un posible riesgo para la seguridad dentro del alojamiento."
+            ),
+            department="trust_and_safety",
+            metrics=TriageMetrics(
+                provider=provider,
+                model="test-model",
+                attempts=1,
+                input_tokens=20,
+                output_tokens=10,
+                latency_ms=100.0,
+                estimated_cost_usd=0.0,
+            ),
+        )
+
+    with (
+        patch(
+            "backend.modules.triage.routes.classify_with_provider",
+            side_effect=lambda request, provider: comparison_result(provider),
+        ) as mock_classify,
+        patch(
+            "backend.modules.triage.routes.save_triage_request",
+        ) as mock_save,
+    ):
+        response = client.post(
+            "/triage/compare",
+            json={
+                "message": "Hay un fuerte olor a gas dentro.",
+                "user_role": "guest",
+            },
+        )
+
+    assert response.status_code == 200
+    assert response.json()["groq"]["metrics"]["provider"] == "groq"
+    assert response.json()["ollama"]["metrics"]["provider"] == "ollama"
+    assert sorted(
+        call.kwargs["provider"]
+        for call in mock_classify.call_args_list
+    ) == ["groq", "ollama"]
+    mock_save.assert_not_called()

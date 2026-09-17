@@ -9,7 +9,7 @@
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
 ![Ollama](https://img.shields.io/badge/Ollama-Local-111111?logo=ollama&logoColor=white)
 ![Groq](https://img.shields.io/badge/Groq-API-F55036?logo=groq&logoColor=white)
-![Pytest](https://img.shields.io/badge/Tests-36%20passing-0A9EDC?logo=pytest&logoColor=white)
+![Pytest](https://img.shields.io/badge/Tests-37%20passing-0A9EDC?logo=pytest&logoColor=white)
 ![GitHub Actions](https://img.shields.io/badge/CI-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)
 
 PRIO es un prototipo individual de AI Engineering que clasifica, prioriza y
@@ -43,6 +43,8 @@ pueda validarla antes de enviarla a su destino.
 - Derivación interna a la bandeja del anfitrión o al departamento adecuado.
 - Seguimiento del estado: `Nueva`, `En gestión` y `Resuelta`.
 - Comparación de calidad, latencia, tokens y coste estimado de los modelos.
+- Comparación en directo de una misma solicitud con Groq y Ollama sin guardar
+  registros de demostración.
 - Reintentos con espera progresiva ante límites de uso o fallos temporales.
 - Pruebas automáticas y flujo de integración continua con GitHub Actions.
 
@@ -226,6 +228,7 @@ Panel: `http://localhost:8502`
 | --- | --- | --- |
 | GET | `/health` | Comprobar el estado de FastAPI |
 | POST | `/triage/` | Clasificar y guardar una solicitud |
+| POST | `/triage/compare` | Comparar Groq y Ollama sin guardar la solicitud |
 | GET/PUT | `/triage/provider` | Consultar o cambiar el modo del proveedor |
 | GET | `/reviews/pending` | Consultar propuestas pendientes |
 | POST | `/reviews/{id}/approve` | Aprobar una clasificación |
@@ -243,7 +246,7 @@ FastAPI también ofrece documentación interactiva en
 python -m pytest -q
 ```
 
-El proyecto cuenta actualmente con 36 pruebas sobre esquemas, proveedores,
+El proyecto cuenta actualmente con 37 pruebas sobre esquemas, proveedores,
 reintentos, triaje, persistencia, revisión, historial y derivaciones.
 
 GitHub Actions repite las pruebas automáticamente en cada cambio enviado a

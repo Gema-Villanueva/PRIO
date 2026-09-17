@@ -1,5 +1,7 @@
+import httpx
 import streamlit as st
 
+from frontend.api_client import compare_triage_providers
 from frontend.styles import (
     apply_global_styles,
     render_admin_navigation,
@@ -16,6 +18,136 @@ apply_global_styles()
 render_admin_navigation()
 
 st.title("Comparación de modelos")
+
+st.write(
+    "Compara Groq y Ollama con una solicitud en directo o consulta "
+    "los resultados de la evaluación controlada."
+)
+
+
+CATEGORY_LABELS = {
+    "access": "Acceso",
+    "booking": "Reservas",
+    "payment": "Pagos",
+    "accommodation": "Alojamiento",
+    "guest_behavior": "Comportamiento de huéspedes",
+    "safety": "Seguridad",
+    "general": "Información general",
+}
+
+URGENCY_LABELS = {
+    "low": "Baja",
+    "medium": "Media",
+    "high": "Alta",
+    "critical": "Crítica",
+}
+
+RESPONSIBLE_LABELS = {
+    "host": "Anfitrión",
+    "platform": "Plataforma",
+}
+
+
+st.subheader("Comparación en directo")
+
+st.caption(
+    "La misma solicitud se procesa una vez con Groq y otra con Ollama. "
+    "Esta prueba no se guarda en Revisión ni en el Historial."
+)
+
+with st.form("live_comparison_form"):
+    role_column, message_column = st.columns([1, 3])
+
+    with role_column:
+        comparison_role = st.selectbox(
+            "¿Quién envía la solicitud?",
+            options=["guest", "host"],
+            format_func=lambda value: {
+                "guest": "Huésped",
+                "host": "Anfitrión",
+            }[value],
+        )
+
+    with message_column:
+        comparison_message = st.text_area(
+            "Solicitud para comparar",
+            placeholder=(
+                "Ejemplo: Hay un fuerte olor a gas dentro del "
+                "alojamiento y todavía estamos dentro."
+            ),
+            height=100,
+        )
+
+    compare_button = st.form_submit_button(
+        "Comparar con Groq y Ollama",
+        type="primary",
+        use_container_width=True,
+    )
+
+
+if compare_button:
+    if not comparison_message.strip():
+        st.warning("Escribe una solicitud antes de iniciar la comparación.")
+
+    else:
+        try:
+            with st.spinner(
+                "Consultando Groq y Ollama. El modelo local puede tardar..."
+            ):
+                st.session_state["live_comparison"] = (
+                    compare_triage_providers(
+                        message=comparison_message,
+                        user_role=comparison_role,
+                    )
+                )
+
+        except httpx.HTTPError:
+            st.error(
+                "No se pudo completar la comparación. Comprueba que "
+                "FastAPI, Groq y Ollama estén disponibles."
+            )
+
+
+def render_live_result(provider_name: str, result: dict) -> None:
+    metrics = result["metrics"]
+    destination = RESPONSIBLE_LABELS[result["responsible_party"]]
+
+    st.markdown(f"### {provider_name}")
+    st.write(f"**Categoría:** {CATEGORY_LABELS[result['category']]}")
+    st.write(f"**Prioridad:** {URGENCY_LABELS[result['urgency']]}")
+    st.write(f"**Responsable:** {destination}")
+    st.write(f"**Resumen:** {result['summary']}")
+
+    latency_column, tokens_column = st.columns(2)
+
+    with latency_column:
+        st.metric(
+            "Latencia",
+            f"{metrics['latency_ms'] / 1000:.2f} s",
+        )
+
+    with tokens_column:
+        st.metric(
+            "Tokens",
+            metrics["input_tokens"] + metrics["output_tokens"],
+        )
+
+    st.caption(f"Coste estimado: ${metrics['estimated_cost_usd']:.8f}")
+
+
+if "live_comparison" in st.session_state:
+    live_results = st.session_state["live_comparison"]
+    live_groq_column, live_ollama_column = st.columns(2)
+
+    with live_groq_column:
+        render_live_result("Groq", live_results["groq"])
+
+    with live_ollama_column:
+        render_live_result("Ollama", live_results["ollama"])
+
+
+st.divider()
+st.subheader("Evaluación de referencia")
 
 st.write(
     "Resultados obtenidos al evaluar Ollama y Groq con los mismos "
