@@ -59,15 +59,15 @@ flowchart TD
     D --> F[Ollama]
     E --> G[Propuesta validada]
     F --> G
-    G --> H[Revisión humana]
+    G --> H[Validación por una persona]
     H --> I{¿La clasificación es correcta?}
     I -->|Sí| N[Aprobar propuesta]
     I -->|No| O[Corregir clasificación]
-    N --> P[Decisión final validada]
+    N --> P[Clasificación definitiva]
     O --> P
-    P --> Q{Destino final}
-    Q --> J[Bandeja del anfitrión]
-    Q --> K[Bandeja del departamento]
+    P --> Q{¿Quién debe gestionarla?}
+    Q --> J[Enviar a la bandeja del anfitrión]
+    Q --> K[Enviar a la bandeja del departamento asignado]
     J --> L[Nueva → En gestión → Resuelta]
     K --> L
     P -->|Guarda la decisión revisada| M[Historial]
