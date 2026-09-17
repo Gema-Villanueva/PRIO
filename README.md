@@ -57,7 +57,7 @@ flowchart TD
     C --> D{Proveedor}
     D --> E[Groq]
     D --> F[Ollama]
-    E --> G[Propuesta validada]
+    E --> G[Propuesta con estructura válida]
     F --> G
     G --> H[Validación por una persona]
     H --> I{¿La clasificación es correcta?}
