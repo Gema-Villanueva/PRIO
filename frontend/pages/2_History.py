@@ -104,7 +104,9 @@ dispatch_by_request_id = {
 
 
 # Permitimos filtrar el histórico.
-status_column, category_column, urgency_column = st.columns(3)
+status_column, category_column, urgency_column, management_column = (
+    st.columns(4)
+)
 
 with status_column:
     selected_status = st.selectbox(
@@ -139,12 +141,24 @@ with urgency_column:
         ),
     )
 
+with management_column:
+    selected_management = st.selectbox(
+        "Gestión",
+        options=["all", "new", "in_progress", "resolved", "no_record"],
+        format_func=lambda value: {
+            "all": "Todas",
+            **DISPATCH_STATUS_LABELS,
+            "no_record": "Sin registro",
+        }[value],
+    )
+
 
 # Aplicamos los filtros sobre la decisión humana final.
 filtered_reviews = []
 
 for review in completed_reviews:
     final_decision = review["final_decision"]
+    dispatch = dispatch_by_request_id.get(review["request_id"])
 
     if final_decision is None:
         continue
@@ -164,6 +178,14 @@ for review in completed_reviews:
     if (
         selected_urgency != "all"
         and final_decision["urgency"] != selected_urgency
+    ):
+        continue
+
+    management_status = dispatch["status"] if dispatch else "no_record"
+
+    if (
+        selected_management != "all"
+        and management_status != selected_management
     ):
         continue
 
